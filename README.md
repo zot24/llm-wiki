@@ -333,6 +333,18 @@ Check your installed version:
 /wiki:lint --fix                                  # Clean up inconsistencies
 ```
 
+When working from this repository checkout, you can also run deterministic
+checks without an agent:
+
+```bash
+./scripts/llm-wiki lint /path/to/wiki
+./scripts/llm-wiki lint --fix /path/to/wiki
+```
+
+This local helper covers structural checks that do not require an LLM. The
+agentic `/wiki:lint` workflow remains the full protocol for editorial and deep
+verification passes.
+
 ## Commands
 
 | Command | Description |

@@ -12,6 +12,7 @@ No LLM calls. Validates wiki file structure, frontmatter schema, index integrity
 
 # Run structural tests
 ./tests/test-structure.sh
+./tests/test-local-cli-lint.sh
 
 # Validate plugin manifest
 ./tests/test-plugin-validate.sh

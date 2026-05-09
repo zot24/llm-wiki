@@ -4,11 +4,13 @@ on:
   push:
     paths:
       - 'claude-plugin/**'
+      - 'scripts/**'
       - 'tests/**'
       - 'AGENTS.md'
   pull_request:
     paths:
       - 'claude-plugin/**'
+      - 'scripts/**'
       - 'tests/**'
 
 jobs:
@@ -26,6 +28,9 @@ jobs:
 
       - name: Run structural tests
         run: chmod +x tests/test-structure.sh && ./tests/test-structure.sh
+
+      - name: Run local CLI lint tests
+        run: chmod +x tests/test-local-cli-lint.sh && ./tests/test-local-cli-lint.sh
 
       - name: Verify Codex plugin sync
         run: chmod +x tests/test-codex-sync.sh && ./tests/test-codex-sync.sh
