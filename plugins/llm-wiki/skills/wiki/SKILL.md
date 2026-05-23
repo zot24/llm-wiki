@@ -123,8 +123,10 @@ scale and media policy, record aliases plus `found_in_context` provenance,
 deduplicate candidates, write a `type: collection` output at
 `output/collect-<slug>-YYYY-MM-DD.md`, then create inventory only when the list
 is small and durable enough; otherwise create or suggest one corpus record.
-Never download binaries by default, never put binaries in `raw/`, and never
-present "all" as exhaustive beyond the stated strategy and limit.
+Download and hash bounded public binary media into
+`output/assets/collect-<slug>/` by default for media-bearing collections, never
+put binaries in `raw/`, and never present "all" as exhaustive beyond the stated
+strategy and limit.
 
 Inventory is first-class operational state, not a silo. Ingest, collection, and
 collect workflows should suggest inventory when the user wants to track or

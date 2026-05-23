@@ -530,16 +530,17 @@ Flow:
    `repost`, `reference`, `retrospective`, `usage-example`,
    `archive-snapshot`, or `unclear`), surrounding label, context summary, and
    confidence.
-6. Do not download binary media by default. Never put binaries in `raw/`; raw is
-   for source text. Catalog media URLs and metadata, optionally cache
-   thumbnails/originals under `output/assets/collect-<slug>/`, and use
-   `datasets/` for hundreds of media items.
+6. Download bounded public binary media for media-bearing collections by
+   default. Never put binaries in `raw/`; raw is for source text. Cache
+   originals or thumbnails under `output/assets/collect-<slug>/`, record local
+   paths, sizes, hashes, formats, and skipped/failed downloads in the catalog,
+   and use `datasets/` for hundreds of media items or very large payloads.
 7. Deduplicate reposts/rehosts using canonical URLs, media URLs, aliases,
    filenames, checksums/perceptual hashes when available, and context evidence.
 8. Save `output/collect-<query-slug>-YYYY-MM-DD.md` with `type: collection`,
-   `query`, `collect_kind`, `scale`, `media_policy`, source URLs, scope, search
-   strategy, catalog table, media handling, gaps, inventory recommendation, and
-   sources checked.
+   `query`, `collect_kind`, `scale`, `media_policy`, `media_assets`, download
+   counts, source URLs, scope, search strategy, catalog table, media handling,
+   gaps, inventory recommendation, and sources checked.
 9. Update `output/_index.md`, the master `_index.md`, and `log.md` with a
    `collect` entry.
 10. If inventory is requested, create per-item records only for small durable

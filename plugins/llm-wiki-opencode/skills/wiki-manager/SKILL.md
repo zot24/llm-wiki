@@ -126,9 +126,10 @@ record `found_in_context` provenance and media metadata → save a
 optionally create inventory records when the list is small and durable enough,
 or one corpus record when it is medium/large. Collect outputs are useful to the
 LLM as a staging layer before promotion into `raw/`, `wiki/`, `inventory`, or
-`datasets`; they do not replace raw sources for factual claims. Do not download
-binaries by default, never store binaries in `raw/`, and do not pretend that
-"all" means exhaustive beyond the stated strategy and limit.
+`datasets`; they do not replace raw sources for factual claims. Download and
+hash bounded public binary media into `output/assets/collect-<slug>/` by
+default for media-bearing collections, never store binaries in `raw/`, and do
+not pretend that "all" means exhaustive beyond the stated strategy and limit.
 
 ### Dataset Registry
 See [references/datasets.md](references/datasets.md).

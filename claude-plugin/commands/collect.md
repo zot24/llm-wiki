@@ -1,7 +1,7 @@
 ---
 description: "Find, catalog, deduplicate, and optionally inventory bounded sets of artifacts, examples, resources, memes, tools, entities, media, or other collectible things."
-argument-hint: "\"<things to collect>\" [--type <kind>] [--scale tiny|small|medium|large|huge] [--limit <N>] [--media reference|thumbnail|archive] [--inventory preview|none|corpus|records] [--ingest-sources] [--dry-run] [--wiki <name>] [--local] [--include-archived]"
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash(ls:*), Bash(wc:*), Bash(date:*), Bash(mkdir:*), WebSearch, WebFetch, Agent
+argument-hint: "\"<things to collect>\" [--type <kind>] [--scale tiny|small|medium|large|huge] [--limit <N>] [--media archive|thumbnail|reference] [--inventory preview|none|corpus|records] [--ingest-sources] [--dry-run] [--wiki <name>] [--local] [--include-archived]"
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash(ls:*), Bash(wc:*), Bash(date:*), Bash(mkdir:*), Bash(curl:*), Bash(shasum:*), Bash(file:*), Bash(stat:*), WebSearch, WebFetch, Agent
 ---
 
 ## Your task
@@ -73,12 +73,13 @@ inventory as tracking state, not evidence.
 - **--scale <scale>**: optional scale override. See Scale below.
 - **--limit <N>**: maximum catalog rows. Defaults by scale. If the user asks for
   "all", still apply the scale limit unless they explicitly set a higher one.
-- **--media reference|thumbnail|archive**:
-  - `reference` default: store URLs and metadata only; do not download binaries.
-  - `thumbnail`: cache small previews only when rights and tooling make that
-    reasonable.
-  - `archive`: download originals or rich media only when explicitly useful,
-    permitted, and bounded.
+- **--media archive|thumbnail|reference**:
+  - `archive` default for media-bearing collections: download originals or
+    rich media when a direct public media URL is available and the collection
+    remains bounded.
+  - `thumbnail`: cache small previews instead of originals when full originals
+    are too heavy for the requested collection.
+  - `reference`: opt out of binary downloads and store URLs plus metadata only.
 - **--inventory preview|none|corpus|records**:
   - `preview` default: suggest inventory shape but do not create records unless
     the user's wording explicitly asked to inventory the findings.
@@ -171,8 +172,9 @@ For ambiguous cases, state the recommended workflow before doing work.
    - `found_in_context`: one or more contextual sightings. See below.
    - `provenance_confidence`: high, medium, or low.
    - `rights_or_license` when visible, else `unknown`.
-   - `media_format`, `media_cached`, `sha256`, and `perceptual_hash` for media
-     when available.
+   - `media_format`, `media_cached`, `local_media_path`, `media_bytes`,
+     `sha256`, `perceptual_hash`, `downloaded_at`, and `download_status` for
+     media when available.
    - tags
    - next action, if it should be tracked.
 
@@ -199,15 +201,27 @@ For ambiguous cases, state the recommended workflow before doing work.
    archived original or near-original, known reference page, repost with clear
    context, then standalone media URL with no context.
 
-5. **Handle binaries and media**
-   - Do not download media by default.
-   - Never put binaries in `raw/`; raw is for immutable source text.
+5. **Download binaries and media**
+   - For media-bearing collections, default to `--media archive`: download each
+     candidate's direct public `media_url` when the payload is bounded and the
+     URL does not require login, paywall bypass, anti-hotlink circumvention, or
+     scraping around access controls.
+   - Never put binaries in `raw/`; raw is for immutable source text and source
+     pages. Cached binaries belong under `output/assets/collect-<query-slug>/`
+     or the relevant `output/projects/<slug>/assets/` folder.
+   - Use stable, sanitized filenames such as
+     `<row-number>-<item-slug>.<ext>`. Keep originals under `originals/` for
+     `archive`, previews under `thumbnails/` for `thumbnail`, and write an
+     `assets-manifest.md` file in the asset folder.
+   - Record `local_media_path` relative to the wiki root, `media_cached: true`,
+     `media_bytes`, `media_format`, `sha256`, `downloaded_at`, and visible
+     rights/license in the collection output. If a download fails or is skipped,
+     keep the row and record `download_status` plus the reason.
    - Catalog media URLs, context pages, aliases, hashes when available, rights,
-     and media metadata in the collection output.
-   - If `--media thumbnail` or `--media archive` is used, store cached assets
-     under `output/assets/collect-<query-slug>/` or the relevant
-     `output/projects/<slug>/assets/` folder, with metadata and hashes.
-   - For hundreds of media items, create a `datasets/<slug>/MANIFEST.md` rather
+     and media metadata even when downloads are skipped or `--media reference`
+     is used.
+   - For hundreds of media items or large binary payloads, create a
+     `datasets/<slug>/MANIFEST.md` and/or ask before bulk downloading rather
      than flooding `output/` or `inventory/`.
 
 6. **Deduplicate**
@@ -238,7 +252,10 @@ For ambiguous cases, state the recommended workflow before doing work.
    collect_kind: "<kind>"
    scale: small|medium|large
    limit: N
-   media_policy: reference|thumbnail|archive
+   media_policy: archive|thumbnail|reference
+   media_assets: output/assets/collect-<query-slug>/
+   media_downloaded: N
+   media_failed: M
    sources:
      - "https://example.com/source"
    tags: [collect, tag1, tag2]
@@ -322,9 +339,13 @@ found_in_context:
     provenance_confidence: medium
 rights_or_license: unknown
 media_format: image/png
-media_cached: false
-sha256: null
+media_cached: true
+local_media_path: output/assets/collect-bitcoin-memes/originals/01-magic-internet-money-wizard.png
+media_bytes: 123456
+sha256: "<sha256>"
 perceptual_hash: null
+downloaded_at: YYYY-MM-DD
+download_status: downloaded
 provenance_confidence: medium
 tags: [bitcoin, meme, collect]
 next_action: "Find original post or archived original."
@@ -381,6 +402,7 @@ Always report:
 - Wiki root path
 - Output path, unless `--dry-run`
 - Scale and media policy
+- Media assets path and download counts, when applicable
 - Search queries used
 - Candidate count before and after deduplication
 - Inventory mode and records created, if any

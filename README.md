@@ -19,6 +19,8 @@ LLM-compiled knowledge bases for any AI agent. Parallel multi-agent research, co
 
 ## Changelog
 
+**v0.10.1** — **Collector media downloads.** `/wiki:collect` now downloads bounded public binary media into `output/assets/collect-<slug>/` by default for media-bearing collections, records local paths and hashes in the catalog, and keeps `--media reference` as the no-download opt-out.
+
 **v0.10.0** — **Collector catalogs.** Added `/wiki:collect` for provenance-rich catalogs of examples, artifacts, media, memes, tools, entities, and source candidates. Collect infers scale, captures aliases and found-in-context provenance, handles binaries as referenced assets by default, writes `output/collect-...` catalogs, and promotes only selected durable subsets into inventory, raw sources, wiki articles, or datasets.
 
 **v0.9.0** — **Topic archive lifecycle.** Whole topic wikis can now be archived under `topics/.archive/` so old interests stay preserved but out of normal context. Query, ingest, compile, research, output, inventory, datasets, projects, librarian, refresh, audit, lint, init, and routing now distinguish active material from explicitly included archived context.
@@ -320,8 +322,8 @@ Check your installed version:
 /wiki:research "What makes long form articles go viral?" --new-topic  # Question → decompose → playbook
 /wiki:thesis "fiber reduces neuroinflammation via SCFAs"  # Thesis-driven: evidence for + against → verdict
 /wiki:thesis "cold exposure upregulates BDNF" --min-time 1h  # Deep thesis investigation
-/wiki:collect "bitcoin memes" --wiki bitcoin  # Find, dedupe, catalog, and optionally inventory artifacts
-/wiki:collect "bitcoin memes" --scale medium --media reference --inventory corpus  # Catalog media without downloading binaries
+/wiki:collect "bitcoin memes" --wiki bitcoin  # Find, dedupe, download media, catalog, and optionally inventory artifacts
+/wiki:collect "bitcoin memes" --scale medium --media reference --inventory corpus  # Catalog media without binary downloads
 /wiki:query "How does fiber affect mood?"         # Ask the wiki
 /wiki:query "compare keto and mediterranean" --deep  # Deep cross-referenced answer
 /wiki:query --resume                              # Where did I leave off?
@@ -382,7 +384,7 @@ folder move plus `wikis.json`, hub index, and log updates.
 | `/wiki:ingest-collection <source> --limit <N> --dry-run` | Preview or cap a large collection import |
 | `/wiki:collect "<things>"` | Find, dedupe, and catalog artifacts, examples, resources, media, memes, tools, entities, or source candidates |
 | `/wiki:collect "<things>" --scale tiny\|small\|medium\|large\|huge` | Control write behavior by operational scale, not just row count |
-| `/wiki:collect "<things>" --media reference\|thumbnail\|archive` | Reference media by URL by default; cache thumbnails or originals only when explicit |
+| `/wiki:collect "<things>" --media archive\|thumbnail\|reference` | Download/cache bounded originals by default; use thumbnail for previews or reference to opt out |
 | `/wiki:collect "<things>" --inventory records` | Create per-item inventory records when the collected set is small enough to stay useful |
 | `/wiki:collect "<things>" --inventory corpus` | Track a large, unstable, or media-heavy collection as one corpus record linked to the catalog output |
 | `/wiki:inventory list` | List durable tracking records as compact chat-friendly tables or bullets |
@@ -508,9 +510,9 @@ The hub is just a registry — no content directories, no `.obsidian/`. All cont
 - **Opinionated inventory** — durable tracking gets records; one-off sources stay
   ingest/query; large row-like data becomes datasets or collection ingests. Big
   pivots start with a sample table before records are written.
-- **Media-safe catalogs** — binary media stays referenced by URL unless caching
-  is explicit; raw sources remain textual evidence, and large media sets become
-  dataset manifests.
+- **Media-safe catalogs** — bounded public binary media is cached under
+  `output/assets/collect-<slug>/` by default; raw sources remain textual
+  evidence, and large media sets become dataset manifests.
 - **Zero dependencies** — runs entirely on built-in tools (Claude Code, OpenCode, or Codex).
 
 ## Research Modes
