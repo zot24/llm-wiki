@@ -117,6 +117,40 @@ else
   log_fail "Claude-like hook payload redacts secrets and omits content fields" "sensitive Claude payload data found under .sessions"
 fi
 
+feedback_payload=$(printf '{"session_id":"feedback-session","hook_event_name":"UserPromptSubmit","cwd":"%s","prompt":"actually default should be on, but there should be a way for people to turn the sessions feature off"}' "$PWD")
+printf '%s' "$feedback_payload" | "$SESSION" --hub "$hub" hook --harness codex --if-enabled >/dev/null
+feedback_json="$("$SESSION" --hub "$hub" feedback list --json 2>&1)"
+feedback_id="$(python3 -c 'import json,sys; data=json.load(sys.stdin); matches=[c for c in data["feedback_candidates"] if c.get("llm_wiki_session_id")=="codex:feedback-session" and c.get("feedback_type")=="correction"]; assert matches; print(matches[0]["id"])' <<<"$feedback_json" 2>/dev/null || true)"
+if [ -n "$feedback_id" ]; then
+  log_pass "UserPromptSubmit feedback candidate captures correction/preference signals"
+else
+  log_fail "UserPromptSubmit feedback candidate captures correction/preference signals" "$feedback_json"
+fi
+before_ack_count="$(python3 -c 'import json,sys; data=json.load(sys.stdin); print(len(data["feedback_candidates"]))' <<<"$feedback_json")"
+ack_payload=$(printf '{"session_id":"feedback-session","hook_event_name":"UserPromptSubmit","cwd":"%s","prompt":"ok"}' "$PWD")
+printf '%s' "$ack_payload" | "$SESSION" --hub "$hub" hook --harness codex --if-enabled >/dev/null
+after_ack_json="$("$SESSION" --hub "$hub" feedback list --json 2>&1)"
+after_ack_count="$(python3 -c 'import json,sys; data=json.load(sys.stdin); print(len(data["feedback_candidates"]))' <<<"$after_ack_json")"
+if [ "$before_ack_count" = "$after_ack_count" ]; then
+  log_pass "Generic acknowledgements are ignored as low-signal feedback"
+else
+  log_fail "Generic acknowledgements are ignored as low-signal feedback" "before=$before_ack_count after=$after_ack_count"
+fi
+if [ -n "$feedback_id" ]; then
+  feedback_promote_output="$("$SESSION" --hub "$hub" feedback promote "$feedback_id" --topic demo 2>&1)"
+else
+  feedback_promote_output="missing feedback id"
+fi
+if [ -n "$feedback_id" ] \
+  && [ -f "$feedback_promote_output" ] \
+  && grep -q 'Feedback Candidate Promotion' "$feedback_promote_output" \
+  && grep -q 'promoted feedback candidate' "$hub/topics/demo/log.md" \
+  && grep -q "$feedback_id" "$hub/.sessions/indexes/feedback.json"; then
+  log_pass "feedback promote creates topic raw note and feedback index"
+else
+  log_fail "feedback promote creates topic raw note and feedback index" "$feedback_promote_output"
+fi
+
 payload1=$(printf '{"session_id":"test-session","hook_event_name":"PostToolUse","cwd":"%s","prompt":"do not store this raw prompt text","tool_name":"Bash","tool_input":{"api_key":"sk-12345678901234567890","command":"curl -H Authorization: Bearer abcdefghijklmnop"}}' "$PWD")
 payload2=$(printf '{"session_id":"test-session","hook_event_name":"PostToolUse","cwd":"%s","tool_name":"Bash"}' "$PWD")
 printf '%s' "$payload1" | "$SESSION" --hub "$hub" hook --harness codex --if-enabled

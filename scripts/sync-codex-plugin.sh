@@ -251,6 +251,7 @@ reference material you need for that workflow:
 - wiki structure, indexes, log format, file placement, init → `references/wiki-structure.md`
 - hub lookup and path handling → `references/hub-resolution.md`
 - session capture, automated hooks, rehydration, promotion → `references/sessions.md`
+- feedback curation, corrections, approvals, candidate promotion → `references/feedback.md`
 
 Collect requests create bounded catalogs of discoverable things: artifacts,
 examples, resources, entities, tools, media, memes, or source candidates. Infer

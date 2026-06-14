@@ -9,7 +9,7 @@
 
 [github.com/nvk/llm-wiki](https://github.com/nvk/llm-wiki)
 
-LLM-compiled knowledge bases for any AI agent. Parallel multi-agent research, collector catalogs, automated session capture, thesis-driven investigation, source ingestion, wiki compilation, truth-seeking audits, querying, and artifact generation. Ships as a Claude Code plugin, an OpenAI Codex plugin, an OpenCode instruction file, or a portable AGENTS.md for any other LLM agent. Obsidian-compatible.
+LLM-compiled knowledge bases for any AI agent. Parallel multi-agent research, collector catalogs, automated session capture, feedback curation, thesis-driven investigation, source ingestion, wiki compilation, truth-seeking audits, querying, and artifact generation. Ships as a Claude Code plugin, an OpenAI Codex plugin, an OpenCode instruction file, or a portable AGENTS.md for any other LLM agent. Obsidian-compatible.
 
 ---
 
@@ -18,6 +18,8 @@ LLM-compiled knowledge bases for any AI agent. Parallel multi-agent research, co
 ---
 
 ## Changelog
+
+**v0.12.0** — **Feedback curator.** Added redacted feedback candidates under `HUB/.sessions/feedback/` for high-signal user corrections, preferences, approvals, and plan acceptance; generic acknowledgements are ignored, and selected candidates can be reviewed with `@wiki feedback list/show` and explicitly promoted with `@wiki feedback promote`.
 
 **v0.11.1** — **Session helper compatibility.** Small hotfix so automated session capture works on Python 3.9/macOS system Python as well as newer Python runtimes.
 
@@ -77,6 +79,7 @@ Canonical explicit invocation:
 @wiki ingest https://example.com/article
 @wiki audit --project coldcard-threat-model
 @wiki session status
+@wiki feedback list --unpromoted
 @wiki session disable   # optional opt-out
 @wiki ll "codex plugin install gotchas"
 ```
@@ -380,6 +383,7 @@ checks without an agent:
 ./scripts/llm-wiki-session --hub /path/to/hub disable   # optional opt-out
 ./scripts/llm-wiki-session --hub /path/to/hub enable --mode balanced --tool-events 50
 ./scripts/llm-wiki-session --hub /path/to/hub rehydrate --cwd "$PWD"
+./scripts/llm-wiki-session --hub /path/to/hub feedback list --unpromoted
 ```
 
 This local helper covers structural checks that do not require an LLM. The
@@ -426,6 +430,9 @@ folder move plus `wikis.json`, hub index, and log updates.
 | `/wiki:session capture` | Force a manual session digest checkpoint |
 | `/wiki:session rehydrate` | Print compact context from matching session digests |
 | `/wiki:session promote <id> --topic <slug>` | Promote a distilled digest into a topic raw note |
+| `/wiki:feedback list --unpromoted` | Review high-signal user-feedback candidates captured from session hooks |
+| `/wiki:feedback show <id>` | Inspect a candidate with distilled lesson, confidence, scope, and redacted preview |
+| `/wiki:feedback promote <id> --topic <slug>` | Promote a selected feedback candidate into topic `raw/notes/` |
 | `/wiki:compile` | Compile new sources into wiki articles |
 | `/wiki:compile --full` | Recompile everything from scratch |
 | `/wiki:query <question>` | Q&A against the wiki (standard depth) |
@@ -476,7 +483,7 @@ All commands accept `--wiki <name>` to target a specific topic wiki and `--local
 ├── wikis.json                          # Registry of all topic wikis
 ├── _index.md                           # Lists topic wikis with stats
 ├── log.md                              # Global activity log
-├── .sessions/                          # Optional automated session capture
+├── .sessions/                          # Optional session capture + feedback candidates
 └── topics/                             # Each topic is an isolated wiki
     ├── nutrition/                      # Example topic wiki
     │   ├── .obsidian/                  # Optional Obsidian vault config
@@ -510,10 +517,11 @@ The hub is just a registry — no content directories, no `.obsidian/`. All cont
 7. **Compile** raw sources into synthesized wiki articles with cross-references and confidence scores
 8. **Query** the wiki — quick (indexes), standard (articles), or deep (everything active, archived indexes separated)
 9. **Session capture** — automatically preserve redacted Codex/Claude/OpenCode/Gemini checkpoints under `.sessions/` and rehydrate future turns
-10. **Lessons learned** — extract knowledge from the current session (errors, fixes, gotchas) into the wiki
-11. **Assess** a repo against the wiki — gap analysis: what aligns, what's missing, what the market offers
-12. **Lint** for consistency — broken links, missing indexes, orphan articles, archive registry drift
-13. **Output** artifacts — summaries, reports, slides — filed back into the wiki
+10. **Feedback curator** — capture reviewable correction/preference/approval candidates under `.sessions/feedback/` and promote only what matters
+11. **Lessons learned** — extract knowledge from the current session (errors, fixes, gotchas) into the wiki
+12. **Assess** a repo against the wiki — gap analysis: what aligns, what's missing, what the market offers
+13. **Lint** for consistency — broken links, missing indexes, orphan articles, archive registry drift
+14. **Output** artifacts — summaries, reports, slides — filed back into the wiki
 
 ### Key Design
 
@@ -543,6 +551,10 @@ The hub is just a registry — no content directories, no `.obsidian/`. All cont
   `output/assets/collect-<slug>/` by default; raw sources remain textual
   evidence, and large media sets become dataset manifests. Bulk downloads use
   timeouts, file-size caps, content-type checks, and IPv4 retry when needed.
+- **Feedback is candidate memory** — corrections, preferences, approvals, and
+  plan acceptance are saved as redacted candidates under `.sessions/feedback/`;
+  generic acknowledgements are ignored, and promotion into topic notes is
+  explicit.
 - **Zero dependencies** — runs entirely on built-in tools (Claude Code, OpenCode, or Codex).
 
 ## Research Modes

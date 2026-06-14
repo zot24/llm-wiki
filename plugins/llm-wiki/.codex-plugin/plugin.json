@@ -1,7 +1,7 @@
 {
   "name": "wiki",
-  "version": "0.11.1",
-  "description": "LLM-compiled knowledge bases for Codex. Build topic-scoped wikis, collect provenance-rich catalogs, archive old topics, track inventory, index datasets, capture and rehydrate session context, ingest sources, compile articles, audit, query, lint, research, and generate outputs.",
+  "version": "0.12.0",
+  "description": "LLM-compiled knowledge bases for Codex. Build topic-scoped wikis, collect provenance-rich catalogs, archive old topics, track inventory, index datasets, capture sessions, curate feedback, and rehydrate context, ingest sources, compile articles, audit, query, lint, research, and generate outputs.",
   "author": {
     "name": "nvk",
     "url": "https://github.com/nvk"
@@ -23,14 +23,15 @@
     "datasets",
     "archive",
     "sessions",
+    "feedback",
     "hooks",
     "context"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "LLM Wiki",
-    "shortDescription": "Build, collect, archive, inventory, index data, capture sessions, audit, and maintain research wikis",
-    "longDescription": "Bundle the llm-wiki workflow for Codex: initialize a wiki, collect provenance-rich catalogs, archive old topics, track inventory, index datasets, capture and rehydrate session context, ingest sources and external collections, compile articles, audit outputs and provenance, query knowledge, lint structure, run research, and generate outputs.",
+    "shortDescription": "Build, collect, archive, inventory, index data, capture sessions, curate feedback, audit, and maintain research wikis",
+    "longDescription": "Bundle the llm-wiki workflow for Codex: initialize a wiki, collect provenance-rich catalogs, archive old topics, track inventory, index datasets, capture sessions, curate feedback, and rehydrate context, ingest sources and external collections, compile articles, audit outputs and provenance, query knowledge, lint structure, run research, and generate outputs.",
     "developerName": "nvk",
     "category": "Productivity",
     "capabilities": [
@@ -47,7 +48,8 @@
       "Ingest these notes or an external source collection into my wiki and update the indexes.",
       "Audit this wiki output and tell me if I can trust it.",
       "Lint this wiki and fix structural issues.",
-      "Enable automated session capture and rehydrate context for this project."
+      "Enable automated session capture and rehydrate context for this project.",
+      "Review feedback candidates from this session and promote durable corrections into my wiki."
     ],
     "brandColor": "#2F855A"
   }

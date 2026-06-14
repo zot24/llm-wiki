@@ -1,5 +1,5 @@
 ---
-description: "LLM wiki knowledge base — understands natural language. Say what you want (add a URL, import a collection, collect a catalog, track inventory, index a dataset, archive an old topic, ask a question, research a topic, audit an output, resume work) and it routes to the right subcommand. Also handles init, status, and config."
+description: "LLM wiki knowledge base — understands natural language. Say what you want (add a URL, import a collection, collect a catalog, track inventory, index a dataset, archive an old topic, ask a question, research a topic, audit an output, resume work, curate feedback) and it routes to the right subcommand. Also handles init, status, and config."
 argument-hint: "[<natural language request>] [init <topic-name> [--local]] [config hub-path [<path>]] [--wiki <name>]"
 allowed-tools: Read, Write, Edit, Glob, Bash(ls:*), Bash(wc:*), Bash(mkdir:*), Bash(date:*), Bash(mv:*)
 ---
@@ -136,7 +136,8 @@ The user typed something that isn't a known keyword. Detect their intent and rou
 | 11 | **Output** | "write a summary", "generate a report", "slides", "create a", "write a" | `Skill: wiki:output` with the request |
 | 12 | **Assess** | "compare to", "assess", "gap analysis" | `Skill: wiki:assess` |
 | 13 | **Plan** | "plan for", "implementation plan", "architecture for" | `Skill: wiki:plan` |
-| 13b | **Lessons Learned** | "learn this", "learn that", "lesson learned", "lessons learned", "absorb this", "capture what we learned", "what did we learn", "session takeaways", "ll" | `Skill: wiki:ll` with the topic hint |
+| 13b | **Feedback** | "feedback", "good feedback", "capture correction", "user said this was right", "that worked", "promote feedback" | `Skill: wiki:feedback` |
+| 13c | **Lessons Learned** | "learn this", "learn that", "lesson learned", "lessons learned", "absorb this", "capture what we learned", "what did we learn", "session takeaways", "ll" | `Skill: wiki:ll` with the topic hint |
 | 14 | **Retract** | "remove source", "retract", "delete source", "pull out" | `Skill: wiki:retract` |
 | 15 | **Project (new)** | "new project", "start a project", "create project" (+ slug and goal) | `Skill: wiki:project` with `new <slug> "goal"` |
 | 16 | **Project (list)** | "list projects", "what projects", "show projects", "my projects" | `Skill: wiki:project` with `list` |

@@ -92,6 +92,11 @@ must not influence new synthesis unless the user explicitly includes it.
 Automated hooks may capture redacted checkpoints, but promotion into topic wikis
 is explicit and user-directed.
 
+12. **Feedback is candidate memory.** User corrections, preferences, approvals,
+and plan-acceptance signals may be captured as redacted candidates under
+`HUB/.sessions/feedback/`, but generic acknowledgements are ignored and durable
+wiki promotion remains explicit.
+
 ## Ambient Behavior
 
 When this skill activates outside of an explicit wiki-related request:
@@ -201,6 +206,14 @@ compaction, stop/session-end, or manual checkpoints → `session rehydrate` retu
 a compact context block → `session promote` explicitly copies the distilled
 digest into a topic `raw/notes/` note. Automated capture is allowed; automated
 promotion is not.
+
+### Feedback Curator
+See [references/feedback.md](references/feedback.md).
+Flow: trusted user-prompt hooks or `feedback capture` classify high-signal user
+corrections, preferences, approvals, and plan-acceptance turns → append redacted
+candidates under `HUB/.sessions/feedback/` → `feedback list/show` review them →
+`feedback promote` explicitly writes selected candidates into topic `raw/notes/`.
+Ignore generic acknowledgements unless manually captured.
 
 ### Output
 Flow: Gather relevant articles → generate artifact (summary/report/slides/etc) → save to `output/` → update indexes.

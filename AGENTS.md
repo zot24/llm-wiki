@@ -39,7 +39,7 @@ The hub is lightweight — NO content, just a registry.
 ├── wikis.json          # Registry of all topic wikis
 ├── _index.md           # Lists topic wikis with stats
 ├── log.md              # Global activity log
-├── .sessions/          # Optional automated agent-session capture (hidden operational layer)
+├── .sessions/          # Optional automated agent-session capture + feedback candidates
 └── topics/
     ├── nutrition/      # Each topic is a full, isolated wiki
     ├── robotics/
@@ -117,7 +117,7 @@ Same structure as a topic wiki but at `<project>/.wiki/`. Add `.wiki/` to `.giti
 normal query/compile/research/collect/output context unless explicitly included. Deep
 queries may surface archived index matches separately.
 11. **Activity log.** Append every operation to `log.md`. Format: `## [YYYY-MM-DD] operation | Description`. Never edit existing entries.
-12. **Session capture is operational memory.** Automated harness-session capture lives under `HUB/.sessions/` or `.wiki/.sessions/`. It can preserve redacted checkpoints automatically, but topic wiki promotion is explicit and user-directed.
+12. **Session capture is operational memory.** Automated harness-session capture lives under `HUB/.sessions/` or `.wiki/.sessions/`. It can preserve redacted checkpoints automatically, but topic wiki promotion is explicit and user-directed. Feedback candidates live under `.sessions/feedback/` and capture only high-signal corrections, preferences, approvals, or plan acceptance; generic acknowledgements are ignored.
 
 ## File Formats
 
@@ -775,6 +775,13 @@ Manage projects within a topic wiki. Projects are folders under `output/projects
 Projects are a lightweight overlay — they don't move or copy wiki content.
 Project archive is separate from topic archive: it moves one folder under
 `output/projects/.archive/` inside the selected topic wiki.
+
+### Feedback
+
+Review and promote high-signal user-feedback candidates. Hooks may capture
+redacted candidates for corrections, preferences, explicit approvals, and plan
+acceptance under `.sessions/feedback/`; generic `ok`/`thanks` acknowledgements
+are ignored. Use `feedback list`, `feedback show`, and `feedback promote <id> --topic <slug>` to move selected candidates into topic `raw/notes/`. Promotion is explicit and appends a `feedback` log entry.
 
 ### Lessons Learned (ll)
 

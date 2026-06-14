@@ -86,6 +86,11 @@ must not influence new synthesis unless the user explicitly includes it.
 Automated hooks may capture redacted checkpoints, but promotion into topic wikis
 is explicit and user-directed.
 
+12. **Feedback is candidate memory.** User corrections, preferences, approvals,
+and plan-acceptance signals may be captured as redacted candidates under
+`HUB/.sessions/feedback/`, but generic acknowledgements are ignored and durable
+wiki promotion remains explicit.
+
 ## Ambient Behavior
 
 When this skill activates outside of an explicit `@wiki` invocation or `/wiki`-style shorthand:
@@ -127,6 +132,7 @@ reference material you need for that workflow:
 - wiki structure, indexes, log format, file placement, init → `references/wiki-structure.md`
 - hub lookup and path handling → `references/hub-resolution.md`
 - session capture, automated hooks, rehydration, promotion → `references/sessions.md`
+- feedback curation, corrections, approvals, candidate promotion → `references/feedback.md`
 
 Collect requests create bounded catalogs of discoverable things: artifacts,
 examples, resources, entities, tools, media, memes, or source candidates. Infer

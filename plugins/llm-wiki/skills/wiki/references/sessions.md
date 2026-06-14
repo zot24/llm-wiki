@@ -28,9 +28,13 @@ HUB/.sessions/
 ├── state/<harness>/<session_id>.json
 ├── queue/YYYY-MM-DD.jsonl
 ├── digests/YYYY/MM/<harness>-<session_id>.md
+├── feedback/
+│   ├── candidates.jsonl
+│   └── status.json
 └── indexes/
     ├── by-cwd.json
     ├── by-topic.json
+    ├── feedback.json
     └── sessions.json
 ```
 
@@ -44,7 +48,9 @@ Use the same layout under `.wiki/.sessions/` for local project wikis.
 - `state/` is the latest per-session machine state.
 - `digests/` contains human/LLM-readable markdown checkpoints with YAML
   frontmatter.
-- `indexes/` are derived caches rebuilt from `state/`.
+- `feedback/` stores redacted, reviewable user-feedback candidates such as
+  corrections, preferences, approvals, and plan acceptance.
+- `indexes/` are derived caches rebuilt from `state/` and feedback candidates.
 
 `.sessions/` is hidden because it is operational, cross-topic, and potentially
 private. It should not be compiled as ordinary topic content. A future generated
@@ -73,7 +79,12 @@ Default mode is `balanced`, even before a config file exists:
     "strict": false
   },
   "raw_transcripts": false,
-  "privacy": "redacted"
+  "privacy": "redacted",
+  "feedback": {
+    "enabled": true,
+    "capture_approvals": true,
+    "min_confidence": "medium"
+  }
 }
 ```
 
@@ -148,7 +159,8 @@ The command reads the harness hook JSON object from stdin and should:
 3. append a redacted event to `queue/YYYY-MM-DD.jsonl`;
 4. update `state/<harness>/<session_id>.json`;
 5. write a digest if a capture trigger fired;
-6. optionally emit a short `additionalContext` block only for rehydration hooks
+6. optionally append a redacted feedback candidate for high-signal user turns;
+7. optionally emit a short `additionalContext` block only for rehydration hooks
    when config enables it.
 
 Hooks must be fast. If future versions do LLM distillation, enqueue work for a
@@ -201,9 +213,30 @@ llm-wiki-session rehydrate --topic meta-llm-wiki
 Strict forced continuation is not the default. If implemented later, it must be
 opt-in and guard against loops with per-turn counters and stop-hook-active flags.
 
+## Feedback Candidates
+
+User-prompt hooks may create feedback candidates under `.sessions/feedback/`
+when the user gives a correction, preference, explicit approval, or plan
+acceptance. Generic acknowledgements such as `ok`, `thanks`, and `cool` are
+ignored by default. Review candidates with:
+
+```bash
+llm-wiki-session feedback list --unpromoted
+llm-wiki-session feedback show fb-abc123
+```
+
+Promote selected feedback with:
+
+```bash
+llm-wiki-session feedback promote fb-abc123 --topic meta-llm-wiki
+```
+
+Feedback promotion writes a distilled raw note under the target topic and logs a
+`feedback` entry. See [feedback.md](feedback.md) for taxonomy and policies.
+
 ## Promotion
 
-Promotion is explicit:
+Session digest promotion is explicit:
 
 ```bash
 llm-wiki-session promote codex:abc123 --topic meta-llm-wiki
@@ -224,7 +257,7 @@ not the raw transcript. Append the topic `log.md` entry. Compilation into
 - Redact obvious token/password/authorization fields in event previews.
 - Store transcript pointers and hashes, not transcript bodies.
 - Keep raw transcript archiving disabled unless the user explicitly opts in.
-- Do not auto-promote session material into topic wikis.
+- Do not auto-promote session material or feedback candidates into topic wikis.
 - Do not let hook failures block normal agent work; fail closed to no capture,
   not to broken tool execution.
 - To opt out, run `llm-wiki-session disable` or ask `@wiki session disable`; this writes `enabled: false`.

@@ -7,7 +7,7 @@ description: >
   collect/catalog discoverable artifacts and examples, track inventory,
   manage source queues, candidates, corpora, entities, watch lists,
   dataset manifests, large datasets, or data that is too big for the wiki,
-  archive old topic wikis, capture or rehydrate agent session context, or uses /wiki commands. Also activates when user says "wiki", "knowledge base",
+  archive old topic wikis, capture or rehydrate agent session context, curate user feedback, or uses /wiki commands. Also activates when user says "wiki", "knowledge base",
   "ingest", "import wiki", "ingest collection", "collect", "catalog",
   "curate", "find all", "compile wiki", "add to wiki", "search wiki", "audit", "librarian",
   "scan quality", "article quality", "content review", "output drift", "inventory",
@@ -15,6 +15,7 @@ description: >
   "dataset", "large data", "data registry", "dataset manifest",
   "archive wiki", "archive topic", "restore wiki", "session capture",
   "capture context", "rehydrate", "resume from session",
+  "feedback", "user feedback", "good feedback", "capture correction", "that worked",
   "provenance", "trust this", or asks a factual question in a directory
   containing .wiki/ or when ~/wiki/ exists or the configured hub path exists
   (check ~/.config/llm-wiki/config.json for hub_path).
@@ -97,6 +98,11 @@ must not influence new synthesis unless the user explicitly includes it.
 `HUB/.sessions/` or `.wiki/.sessions/`, not in topic `raw/` by default.
 Automated hooks may capture redacted checkpoints, but promotion into topic wikis
 is explicit and user-directed.
+
+12. **Feedback is candidate memory.** User corrections, preferences, approvals,
+and plan-acceptance signals may be captured as redacted candidates under
+`HUB/.sessions/feedback/`, but generic acknowledgements are ignored and durable
+wiki promotion remains explicit.
 
 ## Ambient Behavior
 
@@ -207,6 +213,14 @@ compaction, stop/session-end, or manual checkpoints → `session rehydrate` retu
 a compact context block → `session promote` explicitly copies the distilled
 digest into a topic `raw/notes/` note. Automated capture is allowed; automated
 promotion is not.
+
+### Feedback Curator
+See [references/feedback.md](references/feedback.md).
+Flow: trusted user-prompt hooks or `feedback capture` classify high-signal user
+corrections, preferences, approvals, and plan-acceptance turns → append redacted
+candidates under `HUB/.sessions/feedback/` → `feedback list/show` review them →
+`feedback promote` explicitly writes selected candidates into topic `raw/notes/`.
+Ignore generic acknowledgements unless manually captured.
 
 ### Output
 Flow: Gather relevant articles → generate artifact (summary/report/slides/etc) → save to `output/` → update indexes.
