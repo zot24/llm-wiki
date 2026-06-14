@@ -22,6 +22,7 @@ import textwrap
 from pathlib import Path
 from typing import Any
 
+UTC = dt.timezone.utc
 SCHEMA_VERSION = 1
 DEFAULT_TOOL_THRESHOLD = 50
 MAX_LAST_EVENTS = 20
@@ -134,7 +135,7 @@ class HookSkip(Exception):
 
 
 def utc_now() -> str:
-    return dt.datetime.now(dt.UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    return dt.datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
 def today() -> str:
@@ -197,10 +198,10 @@ def parse_timestamp(value: str) -> dt.datetime:
     try:
         parsed = dt.datetime.fromisoformat(normalized)
     except ValueError:
-        return dt.datetime.now(dt.UTC)
+        return dt.datetime.now(UTC)
     if parsed.tzinfo is None:
-        parsed = parsed.replace(tzinfo=dt.UTC)
-    return parsed.astimezone(dt.UTC)
+        parsed = parsed.replace(tzinfo=UTC)
+    return parsed.astimezone(UTC)
 
 
 def atomic_write(path: Path, text: str) -> None:
