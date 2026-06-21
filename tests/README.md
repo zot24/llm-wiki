@@ -34,6 +34,19 @@ No LLM calls. Validates wiki file structure, frontmatter schema, index integrity
 
 `generate-defect-fixtures.sh` creates broken wikis from the golden fixture, one per lint rule. Each has exactly one defect. The structural test verifies each defect is correctly present (negative testing).
 
+### Session capture helper
+
+```bash
+# Deterministic behavior of scripts/llm-wiki-session (capture, redaction, promote)
+./tests/test-session-capture.sh
+
+# Concurrency regression for nvk/llm-wiki#58 — concurrent Stop-hook writes must
+# not corrupt the session-state JSON or crash the hook
+./tests/test-session-concurrency.sh
+```
+
+`test-session-concurrency.sh` is self-proving: it reconstructs the pre-fix shared-tmp `atomic_write` and asserts the race reproduces there (so the harness can detect the bug), then drives the real hook entrypoint under load and asserts it stays clean. A deterministic structural guard also protects the fix on single-core CI runners where the timing race may not fire.
+
 ## Layer 2: Behavioral Evals (~$2-5/run, on PR merge)
 
 Uses Promptfoo with the Claude Agent SDK to test plugin behavior.

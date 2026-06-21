@@ -35,6 +35,12 @@ jobs:
       - name: Verify Codex plugin sync
         run: chmod +x tests/test-codex-sync.sh && ./tests/test-codex-sync.sh
 
+      - name: Run session capture tests
+        run: chmod +x tests/test-session-capture.sh && ./tests/test-session-capture.sh
+
+      - name: Run session concurrency regression (nvk#58)
+        run: chmod +x tests/test-session-concurrency.sh && ./tests/test-session-concurrency.sh
+
   behavioral:
     name: "Layer 2: Behavioral Evals"
     runs-on: ubuntu-latest
