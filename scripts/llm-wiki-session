@@ -227,10 +227,16 @@ def read_json(path: Path, default: Any) -> Any:
     try:
         return json.loads(s)
     except json.JSONDecodeError:
-        # Heal a torn write: keep the first valid object, drop trailing
-        # bytes left by a racy writer (nvk/llm-wiki#58).
-        obj, _ = json.JSONDecoder().raw_decode(s.lstrip())
-        return obj
+        # Heal a torn write: keep the first valid object, dropping trailing
+        # bytes left by a racy writer (nvk/llm-wiki#58). If even that fails
+        # (leading garbage, a truncated fragment, or an empty file), fall
+        # back to `default` so the hook degrades gracefully to a fresh state
+        # instead of crashing.
+        try:
+            obj, _ = json.JSONDecoder().raw_decode(s.lstrip())
+            return obj
+        except json.JSONDecodeError:
+            return default
 
 
 def write_json(path: Path, data: Any) -> None:
