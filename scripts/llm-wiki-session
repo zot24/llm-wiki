@@ -19,6 +19,7 @@ import re
 import subprocess
 import sys
 import textwrap
+import uuid
 from pathlib import Path
 from typing import Any
 
@@ -212,15 +213,24 @@ def parse_timestamp(value: str) -> dt.datetime:
 
 def atomic_write(path: Path, text: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_name(f".{path.name}.tmp")
+    # Unique tmp per writer so concurrent hook processes can't share a tmp
+    # file and tear each other's writes (nvk/llm-wiki#58).
+    tmp = path.with_name(f".{path.name}.{os.getpid()}.{uuid.uuid4().hex}.tmp")
     tmp.write_text(text, encoding="utf-8")
-    tmp.replace(path)
+    os.replace(tmp, path)
 
 
 def read_json(path: Path, default: Any) -> Any:
     if not path.exists():
         return default
-    return json.loads(path.read_text(encoding="utf-8"))
+    s = path.read_text(encoding="utf-8")
+    try:
+        return json.loads(s)
+    except json.JSONDecodeError:
+        # Heal a torn write: keep the first valid object, drop trailing
+        # bytes left by a racy writer (nvk/llm-wiki#58).
+        obj, _ = json.JSONDecoder().raw_decode(s.lstrip())
+        return obj
 
 
 def write_json(path: Path, data: Any) -> None:
